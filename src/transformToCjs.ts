@@ -1,8 +1,7 @@
 import * as babel from '@babel/types';
 import * as babelCore from '@babel/core';
-import { SrcFile } from '@rotcare/project';
 
-export function transformToCjs(ast: babel.File, srcFiles: Map<string, SrcFile>) {
+export function transformToCjs(ast: babel.File, srcFiles: Record<string, string>) {
     const result = babelCore.transformFromAstSync(ast, undefined, {
         plugins: [
             '@babel/plugin-transform-typescript',
