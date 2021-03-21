@@ -6,6 +6,21 @@ const project = new Project('.');
 project.transform = transformToCjs;
 
 export function registerProjectFilesTranspilation() {
+    const builtinModule = require('module');
+    const Module = module.constructor.length > 1 ? module.constructor : builtinModule;
+    const oldResolveFilename = Module._resolveFilename;
+    Module._resolveFilename = function (
+        request: any,
+        parentModule: any,
+        isMain: any,
+        options: any,
+    ) {
+        if (request.startsWith('@motherboard/')) {
+            return `${request}.ts`;
+        }
+        return oldResolveFilename.call(this, request, parentModule, isMain, options);
+    };
+
     let requireExtensions: NodeJS.RequireExtensions;
     try {
         requireExtensions = require.extensions;
@@ -33,6 +48,10 @@ export function registerProjectFilesTranspilation() {
 }
 
 function isProjectFile(filename: string) {
+    if (filename.startsWith('@motherboard/')) {
+        const qualifiedName = filename.replace('.ts', '').substr('@motherboard/'.length);
+        return qualifiedName;
+    }
     const relPath = path.relative(project.projectDir, filename);
     if (relPath[0] === '.') {
         return undefined;
