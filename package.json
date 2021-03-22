@@ -7,6 +7,12 @@
         "url": "https://github.com/rotcare/register.git"
     },
     "main": "index.js",
+    "dependencies": {
+        "source-map-support": "^0.5.19"
+    },
+    "devDependencies": {
+        "@types/source-map-support": "^0.4.0"
+    },
     "peerDependencies": {
         "@rotcare/project": "*"
     },

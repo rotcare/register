@@ -1,11 +1,19 @@
 import * as path from 'path';
 import { buildFile, Project } from '@rotcare/project';
 import { transformToCjs } from './transformToCjs';
+import * as sourceMapSupport from 'source-map-support';
+import * as babelCore from '@babel/core';
 
 const project = new Project('.');
 project.transform = transformToCjs;
 
 export function registerProjectFilesTranspilation() {
+    patchResolveFilename();
+    registerExtensions();
+    installSourceMapSupport();
+}
+
+function patchResolveFilename() {
     const builtinModule = require('module');
     const Module = module.constructor.length > 1 ? module.constructor : builtinModule;
     const oldResolveFilename = Module._resolveFilename;
@@ -20,7 +28,9 @@ export function registerProjectFilesTranspilation() {
         }
         return oldResolveFilename.call(this, request, parentModule, isMain, options);
     };
+}
 
+function registerExtensions() {
     let requireExtensions: NodeJS.RequireExtensions;
     try {
         requireExtensions = require.extensions;
@@ -29,14 +39,12 @@ export function registerProjectFilesTranspilation() {
         throw e;
     }
 
-    const origJsHandler = requireExtensions['.js'];
-
     const registerExtension = (ext: string) => {
-        const origHandler = requireExtensions[ext] || origJsHandler;
         requireExtensions[ext] = function (module, filename) {
             const qualifiedName = isProjectFile(filename);
             if (!qualifiedName) {
-                return origHandler(module, filename);
+                const code = translateTs(filename);
+                return (module as any)._compile(code, filename);
             }
             const projectFile = buildFile(project, qualifiedName)
             return (module as any)._compile(projectFile.code, filename);
@@ -45,6 +53,30 @@ export function registerProjectFilesTranspilation() {
 
     registerExtension('.ts');
     registerExtension('.tsx');
+}
+
+function installSourceMapSupport() {
+    sourceMapSupport.install({ retrieveFile: (path) => {
+        if (!path.endsWith('.ts') && !path.endsWith('.tsx')) {
+            return undefined as any;
+        }
+        const qualifiedName = isProjectFile(path);
+        if (qualifiedName) {
+            return buildFile(project, qualifiedName).code;
+        }
+        return translateTs(path);
+    }, environment: 'node', handleUncaughtExceptions: false })
+}
+
+function translateTs(filename: string) {
+    const result = babelCore.transformFileSync(filename, {
+        sourceMaps: 'inline',
+        plugins: ["@babel/plugin-transform-typescript", "@babel/plugin-transform-modules-commonjs"],
+    });
+    if (!result || !result.code) {
+        throw new Error('transform typescript failed');
+    }
+    return result.code;
 }
 
 function isProjectFile(filename: string) {
