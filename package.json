@@ -6,6 +6,7 @@
         "type": "git",
         "url": "https://github.com/rotcare/register.git"
     },
+    "homepage": "https://rot.care/codegen/",
     "main": "src/index.js",
     "dependencies": {
         "source-map-support": "^0.5.19"
