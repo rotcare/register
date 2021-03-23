@@ -1,11 +1,9 @@
 import * as path from 'path';
 import { buildFile, Project } from '@rotcare/project';
-import { transformToCjs } from './transformToCjs';
 import * as sourceMapSupport from 'source-map-support';
 import * as babelCore from '@babel/core';
 
 const project = new Project('.');
-project.transform = transformToCjs;
 
 export function registerProjectFilesTranspilation() {
     patchResolveFilename();
@@ -43,11 +41,11 @@ function registerExtensions() {
         requireExtensions[ext] = function (module, filename) {
             const qualifiedName = isProjectFile(filename);
             if (!qualifiedName) {
-                const code = translateTs(filename);
-                return (module as any)._compile(code, filename);
+                const jsCode = translateTs(filename);
+                return (module as any)._compile(jsCode, filename);
             }
-            const projectFile = buildFile(project, qualifiedName)
-            return (module as any)._compile(projectFile.code, filename);
+            const jsCode = buildFile(project, qualifiedName)
+            return (module as any)._compile(jsCode, filename);
         };
     };
 
@@ -62,7 +60,7 @@ function installSourceMapSupport() {
         }
         const qualifiedName = isProjectFile(path);
         if (qualifiedName) {
-            return buildFile(project, qualifiedName).code;
+            return buildFile(project, qualifiedName);
         }
         return translateTs(path);
     }, environment: 'node', handleUncaughtExceptions: false })
