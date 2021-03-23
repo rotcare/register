@@ -13,3 +13,7 @@ node -r @rotcare/register hello.ts
 ```
 
 `node -r @rotcare/register` 代替了 `node -r ts-eager/register` 或者 `node -r ts-node/register` 等执行 TypeScript 的 register。
+
+# 命令行
+
+* `rotcare-show <qualifiedName>` 查看指定 TypeScript 文件构建之后的 JavaScript 代码，需要在 Project 的目录下执行
