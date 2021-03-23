@@ -1,25 +1,26 @@
 {
-    "name": "@rotcare/register",
-    "version": "0.1.0",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/rotcare/register.git"
-    },
-    "main": "src/index.js",
-    "dependencies": {
-        "source-map-support": "^0.5.19"
-    },
-    "devDependencies": {
-        "@types/source-map-support": "^0.4.0"
-    },
-    "peerDependencies": {
-        "@rotcare/project": "*"
-    },
-    "bin": {
-        "rotcare-show": "bin/rotcare-show.js"
-    },
-    "scripts": {
-        "release": "tsc && cp src/index.js lib/index.js"
-    }
+  "name": "@rotcare/register",
+  "version": "0.1.9",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rotcare/register.git"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "source-map-support": "^0.5.19"
+  },
+  "devDependencies": {
+    "@types/source-map-support": "^0.4.0"
+  },
+  "peerDependencies": {
+    "@rotcare/project": "*"
+  },
+  "bin": {
+    "rotcare-show": "bin/rotcare-show.js"
+  },
+  "scripts": {
+    "release": "tsc && cp src/index.js lib/index.js"
+  },
+  "typings": "lib/index.d.ts"
 }
